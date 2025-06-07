@@ -58,5 +58,46 @@ void free_constant_pool(cp_info *constant_pool, uint16_t count);
 // Function to resolve a UTF-8 string from the constant pool
 const char* get_utf8_string(const cp_info *constant_pool, uint16_t index);
 
+// Adicionar as entradas para ConstantPool
+class ConstantPool {
+private:
+    std::vector<ConstantPoolEntry> entries;
+
+public:
+    // Tipos de entradas (tags 1-18, Java 8)
+    void addUtf8(const std::string& value) {
+        entries.emplace_back(1, value);
+    }
+
+    void addInteger(int32_t value) {
+        entries.emplace_back(3, value);
+    }
+
+    void addFloat(float value) {
+        entries.emplace_back(4, value);
+    }
+
+    // ... (implementar outros métodos para tags 1-18)
+
+    // Exemplo para Methodref (tag 10)
+    void addMethodRef(const std::string& className, 
+                     const std::string& methodName, 
+                     const std::string& descriptor) {
+        int classIndex = addClass(className);
+        int nameAndTypeIndex = addNameAndType(methodName, descriptor);
+        entries.emplace_back(10, classIndex, nameAndTypeIndex);
+    }
+
+private:
+    class ConstantPoolEntry {
+    public:
+        uint8_t tag;
+        std::vector<std::any> values;
+
+        ConstantPoolEntry(uint8_t tag, auto... values) : 
+            tag(tag), 
+            values{values...} {}
+    };
+};
 
 #endif
